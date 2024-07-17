@@ -1,29 +1,27 @@
 pipeline {
-    agent any
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/your-repo.git'
-            }
-        }
+	agent any
+	tools {
+ 		 maven 'm398'
+		}
 
-        stage('Build') {
-            steps {
-                sh 'make build'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'make test'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh 'make deploy'
-            }
-        }
-    }
+	stages {
+ 	 stage('build') {
+  	  steps {
+      	    sh 'mvn install '
+  }
 }
+
+stage('test') {
+	steps  {
+		sh 'echo a'
+	   }
+   	post {
+		always {
+   		 archiveArtifacts artifacts: 'target/**.jar', followSymlinks: false
+    	 junit stdioRetention: '', testResults: 'target/surefire-reports/*.xml'
+	}
+}
+
+    }
+  }
