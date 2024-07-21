@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'Dockerfile'
+        REPO_URL = 'https://github.com/bnSridhar58/Project/blob/main/backend/Dockerfile'
+        BRANCH = 'main' // or the branch you want to build
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${env.DOCKER_IMAGE}")
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
+                        docker.image("${env.DOCKER_IMAGE}").push("${env.BRANCH}")
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
