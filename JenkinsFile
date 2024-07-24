@@ -16,15 +16,18 @@ pipeline {
             stage(run) {
                 steps {  sh 'mvn clean spring-boot:run &;curl http://localhost:8080/docs'  }
             }
-stage(dockerfrontend) {
+stage(docker) {
            parallel{
-
+stage(dockerfrontend) {
                 steps {
                         dir("frontend") {   sh 'docker build -t frontend:latest .'   }
                 }
-                             steps {
+}
+                     stage(dockerbackend) {        
+        steps {
                     dir("backend") { sh 'docker build -t backend:latest .' }
                 }
+}
             }
 }
             stage(dockerRun) {
